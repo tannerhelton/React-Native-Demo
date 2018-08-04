@@ -11,11 +11,29 @@ class LoginForm extends Component {
 
     this.setState({ error: '', loading: true });
 
-    firebase.auth().signInWithEmailAndPassword(email, password).catch(() => {
-        firebase.auth().createUserWithEmailAndPassword(email, password).catch(() => {
-          this.setState({ error: 'Authentication Failed' });
-        });
-      });
+    firebase.auth().signInWithEmailAndPassword(email, password)
+    .then(this.onLoginSuccess.bind(this))
+    .catch(() => {
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+      .then(this.onLoginSuccess.bind(this))
+      .catch(this.onLoginFail.bind(this));
+    });
+  }
+
+  onLoginFail() {
+    this.setState({
+      loading: false,
+      error: 'Authentication Failed'
+    });
+  }
+
+  onLoginSuccess() {
+    this.setState({
+      email: '',
+      password: '',
+      loading: false,
+      error: ''
+    });
   }
 
   renderButton() {
@@ -25,7 +43,7 @@ class LoginForm extends Component {
 
     return (
       <Button onPress={this.onButtonPress.bind(this)}>
-        Test
+        Login
       </Button>
     );
   }
@@ -38,7 +56,7 @@ class LoginForm extends Component {
           placeholder="user@gmail.com"
           label="Email"
           value={this.state.email}
-          onTextChanger={ email => this.setState({ email })}
+          onChangeText={ email => this.setState({ email })}
           />
         </CardSection>
 
